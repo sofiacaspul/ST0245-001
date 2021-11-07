@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from scipy.ndimage.filters import convolve
 import matplotlib
-from matplotlib.image import imsave
+# from matplotlib.image import imsave
 from matplotlib import pyplot
 import pathlib
 
@@ -94,45 +94,34 @@ def crop_r(img, energyMap, scale_r):
     img = np.rot90(img, 3, (0, 1))
     return img
 
-def main():
+def seam_carving(csvFile, scale_c, scale_r):
+    """
+        Esta funcion se encargara de comprimir el archivo con seam_carving
+        Parametros:
+            'in_filename' -> nombre del directorio q se lee
+            'scale_c' -> escala a comprimir en columnas
+            'scale_r' -> escala a comprimir en filas
+    """
+    # matplotlib.image.imsave('ouput.png', csvFile, cmap='gray')
+    # image_2 = matplotlib.image.imread('ouput.png')
+    # pyplot.imshow(image_2)
+    # pyplot.show()
 
-    if len(sys.argv) != 6:
-        print('\nusage: completocsv.py <path_dir_in> <path_dir_out> <energyPath_out> <scale_columns> <scale_rows>')
-        sys.exit(1)
-
-    in_dirPath = sys.argv[1] #nombre del directorio q se lee
-    out_dirPath = sys.argv[2] #nombre del directorio q guardamos el resultado comprimido
-    outEnergy_path = sys.argv[3] #nombre del directorio donde se veran los mapas de energia
-    scale_c = float(sys.argv[4]) #escala a comprimir en columnas
-    scale_r = float(sys.argv[5]) #escala a comprimir en filas
-    directory = pathlib.Path(in_dirPath)
-    
-    for in_filename in directory.iterdir():
-        
-        csvFile = np.genfromtxt(in_filename, delimiter=',')
-        print(in_filename)
-
-        # matplotlib.image.imsave('ouput.png', csvFile, cmap='gray')
-        # image_2 = matplotlib.image.imread('ouput.png')
-        # pyplot.imshow(image_2)
-        # pyplot.show()
+    energy_map = calc_energy(csvFile)
+    energy_map_copy = energy_map
 
 
-        energy_map = calc_energy(csvFile)
-        outEnergy_path_temp = outEnergy_path + '\\' +  in_filename.name[:-4] + ".png" #organizamos el path con el mismo nombre del archivo y una extencion png
-        imsave(outEnergy_path_temp, energy_map, cmap='gray')
-
-        out, energy_map = crop_c(csvFile, energy_map, scale_c)
-        out = crop_r(out, energy_map, scale_r)
-        out_dirPath_temp = out_dirPath + '\\' + in_filename.name
-        np.savetxt(out_dirPath_temp, out, delimiter=',', fmt='%d')
-
-        # Esto convierte el archivo csv a png, luego lo lee y lo muestra en pantalla
-        # matplotlib.image.imsave('output.png', out, cmap='gray')
-        # image_1 = matplotlib.image.imread('output.png')
-        # pyplot.imshow(image_1)
-        # pyplot.show()
+    out, energy_map_copy = crop_c(csvFile, energy_map_copy, scale_c)
+    out = crop_r(out, energy_map_copy, scale_r)
 
 
-if __name__ == '__main__':
-    main()
+    # Esto convierte el archivo csv a png, luego lo lee y lo muestra en pantalla
+    # matplotlib.image.imsave('output.png', out, cmap='gray')
+    # image_1 = matplotlib.image.imread('output.png')
+    # pyplot.imshow(image_1)
+    # pyplot.show()
+
+    return out, energy_map
+
+# if __name__ == '__main__':
+#     main()
